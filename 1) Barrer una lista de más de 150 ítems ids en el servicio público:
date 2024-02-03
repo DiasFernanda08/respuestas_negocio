@@ -1,0 +1,56 @@
+import requests
+
+lista = ['livro', 'agenda', 'caneta']
+
+def fetch_mercado_livre_data(produto):
+    # URL da API do Mercado Livre
+    
+    url = "https://api.mercadolibre.com/sites/MLA/search?q=" + produto + "&limit=50#json"
+
+
+    try:
+        # Enviar requisição GET para a API
+        response = requests.get(url)
+        response.raise_for_status()  # Levanta uma exceção para códigos de status HTTP 4xx e 5xx
+
+        # Parsear a resposta JSON
+        data = response.json()
+
+        # Retornar os resultados da busca
+        return data
+
+    except requests.exceptions.RequestException as e:
+        print("Erro ao fazer requisição:", e)
+        return None
+
+def save_results_to_file(results, filename):
+    try:
+        with open(filename, 'a') as file:
+            for item in results['results']:
+                file.write()
+        print("Resultados salvos em", filename)
+    except IOError as e:
+        print("Erro ao escrever arquivo:", e)
+
+def main(produto):
+    # Consulta de exemplo
+    #query = input("Digite o que você deseja pesquisar no Mercado Livre: ")
+
+    # Obter dados do Mercado Livre
+    mercado_livre_data = fetch_mercado_livre_data(produto)
+
+    if mercado_livre_data:
+        # Exibir os resultados da busca
+        print("Resultados da busca no Mercado Livre para:", produto)
+        for item in mercado_livre_data['results']:
+            print(item)
+        
+        # Salvar os resultados em um arquivo
+        save_results_to_file(mercado_livre_data, filename = f'mercado_livre_results_{produto}.txt')
+    else:
+        print("Não foi possível obter resultados do Mercado Livre.")
+
+if __name__ == "__main__":
+    for produto in lista:
+      main(produto)
+      print(produto)
