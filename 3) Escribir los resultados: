@@ -1,0 +1,48 @@
+import json
+
+lista = ['livro', 'agenda', 'caneta']
+
+def read_json_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            data = json.load(file)
+            return data
+    except IOError as e:
+        print("Erro ao ler arquivo:", e)
+        return None
+
+def desnormalize_json(filename):
+    try:
+        data = read_json_file(filename)
+        if data:
+            # Nome do novo arquivo com os objetos separados por vírgulas
+            new_filename = filename.split('.')[0] + '_desnormalized.json'
+
+            with open(new_filename, 'w') as new_file:
+                # Escreve o '[' para iniciar a lista
+                new_file.write("[\n")
+
+                # Escreve cada objeto com uma vírgula no final, exceto o último
+                for i, item in enumerate(data):
+                    json.dump(item, new_file, indent=4)
+                    if i < len(data) - 1:
+                        new_file.write(",\n")
+                    else:
+                        new_file.write("\n")
+
+                # Escreve o ']' para fechar a lista
+                new_file.write("]\n")
+
+            print("Arquivo desnormalizado criado:", new_filename)
+            print(new_file)
+    except Exception as e:
+        print("Erro ao desnormalizar arquivo:", e)
+
+def main(produto):
+    filename =  f'mercado_livre_results_{produto}.txt'
+    desnormalize_json(filename)
+
+if __name__ == "__main__":
+    for produto in lista:
+      main(produto)
+      print(produto)
