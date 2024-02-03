@@ -1,4 +1,5 @@
 import requests
+import json
 
 lista = ['livro', 'agenda', 'caneta']
 
@@ -25,12 +26,13 @@ def fetch_mercado_livre_data(produto):
 
 def save_results_to_file(results, filename):
     try:
-        with open(filename, 'a') as file:
-            for item in results['results']:
-                file.write()
+        with open(filename, 'w') as file:  # Use 'w' para escrever um novo arquivo
+            json.dump(results, file, indent=4)
+            print(json.dump)
         print("Resultados salvos em", filename)
     except IOError as e:
         print("Erro ao escrever arquivo:", e)
+
 
 def main(produto):
     # Consulta de exemplo
