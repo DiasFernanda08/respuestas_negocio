@@ -1,0 +1,176 @@
+#1) Barrer una lista de más de 150 ítems ids en el servicio público:
+import requests
+import json
+
+lista = ['adidas', 'nike', 'fila']
+
+def fetch_mercado_livre_data(produto):
+    # URL da API do Mercado Livre
+    
+    url = "https://api.mercadolibre.com/sites/MLA/search?q=" + produto + "&limit=50#json"
+
+
+    try:
+        # Enviar requisição GET para a API
+        response = requests.get(url)
+        response.raise_for_status()  # Levanta uma exceção para códigos de status HTTP 4xx e 5xx
+
+        # Parsear a resposta JSON
+        data = response.json()
+
+        # Retornar os resultados da busca
+        return data
+
+    except requests.exceptions.RequestException as e:
+        print("Erro ao fazer requisição:", e)
+        return None
+
+def save_results_to_file(results, filename):
+    try:
+        with open(filename, 'w') as file:  # Use 'w' para escrever um novo arquivo
+            json.dump(results, file, indent=4)
+            print(json.dump)
+        print("Resultados salvos em", filename)
+    except IOError as e:
+        print("Erro ao escrever arquivo:", e)
+
+
+def main(produto):
+    # Consulta de exemplo
+    #query = input("Digite o que você deseja pesquisar no Mercado Livre: ")
+
+    # Obter dados do Mercado Livre
+    mercado_livre_data = fetch_mercado_livre_data(produto)
+
+    if mercado_livre_data:
+        # Exibir os resultados da busca
+        print("Resultados da busca no Mercado Livre para:", produto)
+        for item in mercado_livre_data['results']:
+            print(item)
+        
+        # Salvar os resultados em um arquivo
+        save_results_to_file(mercado_livre_data, filename = f'mercado_livre_results_{produto}.txt')
+    else:
+        print("Não foi possível obter resultados do Mercado Livre.")
+
+if __name__ == "__main__":
+    for produto in lista:
+      main(produto)
+      print(produto)
+
+#2) Por cada resultado, realizar el correspondiente GET por Item_Id al recurso público:
+import requests
+import json
+
+lista = ['adidas', 'nike', 'fila']
+
+def fetch_mercado_livre_data(produto):
+    # URL da API do Mercado Livre
+    
+    url = "https://api.mercadolibre.com/sites/MLA/search?q=" + produto + "&limit=50#json"
+
+
+    try:
+        # Enviar requisição GET para a API
+        response = requests.get(url)
+        response.raise_for_status()  # Levanta uma exceção para códigos de status HTTP 4xx e 5xx
+
+        # Parsear a resposta JSON
+        data = response.json()
+
+        
+        return data
+
+    except requests.exceptions.RequestException as e:
+        print("Erro ao fazer requisição:", e)
+        return None
+
+def save_results_to_file(results, filename='mercado_livre_results.txt'):
+    try:
+        with open(filename, 'a') as file:
+            for item in results['results']:
+                file.write("id: " + str(item['id']) + "\n")
+                file.write("error: " + str(item['error']) + "\n")
+                file.write("message: " + str(item['message']) + "\n")
+                file.write("---------------------------\n")
+        print("Resultados salvos em", filename)
+    except IOError as e:
+        print("Erro ao escrever arquivo:", e)
+
+def main(produto):
+
+
+    # Obter dados do Mercado Livre
+    mercado_livre_data = fetch_mercado_livre_data(produto)
+
+    if mercado_livre_data:
+        # Exibir os resultados da busca
+        for item in mercado_livre_data['results']:
+            id = item['id']
+            url_id = f"https://api.mercadolibre.com/items/{id}"
+            response_id = requests.get(url_id)
+
+            data_id = response_id.json()
+
+            return data_id
+            
+        save_results_to_json(data_id)
+    else:
+        print("Não foi possível obter resultados do Mercado Livre.")
+
+if __name__ == "__main__":
+    for produto in lista:
+      main(produto)
+      print(produto)
+      
+
+#3) Escribir los resultados:
+import json
+
+lista = ['adidas', 'nike', 'fila']
+
+def read_json_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            data = json.load(file)
+            return data
+    except IOError as e:
+        print("Erro ao ler arquivo:", e)
+        return None
+
+def desnormalize_json(filename):
+    try:
+        data = read_json_file(filename)
+        if data:
+            # Nome do novo arquivo com os objetos separados por vírgulas
+            new_filename = filename.split('.')[0] + '_desnormalized.json'
+
+            with open(new_filename, 'w') as new_file:
+                # Escreve o '[' para iniciar a lista
+                new_file.write("[\n")
+
+                # Escreve cada objeto com uma vírgula no final, exceto o último
+                for i, item in enumerate(data):
+                    json.dump(item, new_file, indent=4)
+                    if i < len(data) - 1:
+                        new_file.write(",\n")
+                    else:
+                        new_file.write("\n")
+
+                # Escreve o ']' para fechar a lista
+                new_file.write("]\n")
+
+            print("Arquivo desnormalizado criado:", new_filename)
+            print(new_file)
+    except Exception as e:
+        print("Erro ao desnormalizar arquivo:", e)
+
+def main(produto):
+    filename =  f'mercado_livre_results_{produto}.txt'
+    desnormalize_json(filename)
+
+if __name__ == "__main__":
+    for produto in lista:
+      main(produto)
+      print(produto)
+
