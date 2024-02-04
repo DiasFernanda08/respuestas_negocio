@@ -1,6 +1,6 @@
 import json
 
-lista = ['livro', 'agenda', 'caneta']
+lista = ['adidas', 'nike', 'fila']
 
 def read_json_file(filename):
     try:
